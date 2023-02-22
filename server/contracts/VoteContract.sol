@@ -77,4 +77,8 @@ contract VoteContract{
     function isWhitelisted(address _address) public view returns(bool) {
         return whitelist[_address];
     }
+
+    function isOwner() view public returns(bool){
+        return msg.sender == owner;
+    }
 }
