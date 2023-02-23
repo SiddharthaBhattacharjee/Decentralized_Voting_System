@@ -6,14 +6,15 @@ import { ethers } from 'ethers';
 import { Web3Provider } from '@ethersproject/providers';
 import VoteAbi from './utils/VoteContract.json';
 import OwnerPart from './components/OwnerPart';
+import { getAddress } from 'ethers';
 
 function App() {
 
-  const [currentAccount, setCurrentAccount] = useState('');
-  const [correctNetwork, setCorrectNetwork] = useState(false);
-  const [isOwner, setIsOwner] = useState(false);
-  const [isVoter, setIsVoter] = useState(false);
-  const [isVotingEnabled, setIsVotingEnabled] = useState(false);
+  const [currentAccount, setCurrentAccount] = useState(''); //fetched from metamask
+  const [correctNetwork, setCorrectNetwork] = useState(false); //fetched from metamask
+  const [isOwner, setIsOwner] = useState(false); // fetched from smart contract, not editable
+  const [isVoter, setIsVoter] = useState(false); 
+  const [isVotingEnabled, setIsVotingEnabled] = useState(false); // fetched from smart contract, edited by toggleIsVE
   const [voted, setVoted] = useState(false);
 
   const connectWallet = async () => {
@@ -67,6 +68,53 @@ function App() {
     }
   }
 
+  const checkIsVoteEnabled = async () => {
+    try{
+      const {ethereum} = window;
+      if(ethereum){
+        //setting up provider
+        const provider = new Web3Provider(ethereum);
+        const signer = provider.getSigner();
+        console.log('signer : ',signer);
+        const VoteContract = new ethers.Contract(VoteContractAddress, VoteAbi.abi, signer);
+        console.log('VoteContract : ',VoteContract);
+        //calling the smart contract
+        let isVEcheck = await VoteContract.isVotingEnabled();
+        console.log('isVotingEnabled : ',isVEcheck);
+        setIsVotingEnabled(isVEcheck);
+      }
+      else{
+        console.log('Ethereum object not found');
+      }
+    }catch(error){
+      console.log(error);
+    }
+  }
+
+  const checkIsVoter = async () => {
+    try{
+      const {ethereum} = window;
+      if(ethereum){
+        //setting up provider
+        const provider = new Web3Provider(ethereum);
+        const signer = provider.getSigner();
+        console.log('signer : ',signer);
+        const VoteContract = new ethers.Contract(VoteContractAddress, VoteAbi.abi, signer);
+        console.log('VoteContract : ',VoteContract);
+        //calling the smart contract
+        const validatedAddressArg = getAddress(currentAccount);
+        let isVoterCheck = await VoteContract.isWhitelisted(validatedAddressArg);
+        console.log('isVoter : ',isVoterCheck);
+        setIsVoter(isVoterCheck);
+      }
+      else{
+        console.log('Ethereum object not found');
+      }
+    }catch(error){
+      console.log(error);
+    }
+  }
+
   const toggleisve = async () => {
     try{
       const {ethereum} = window;
@@ -82,7 +130,6 @@ function App() {
           response => {
             setIsVotingEnabled(!isVotingEnabled);
             console.log('toggleVotingEnabled : ',response);
-            
           }
         ).catch(err => {
           console.log(err);
@@ -101,7 +148,9 @@ function App() {
   useEffect(()=>{
     connectWallet();
     checkOwner();
-  }, []);
+    checkIsVoteEnabled();
+    checkIsVoter();
+  }, [connectWallet, checkOwner, checkIsVoteEnabled, checkIsVoter]);
 
   const Register = async () => {
     window.open('https://metamask.io', '_blank');
@@ -132,8 +181,12 @@ function App() {
             </div>
           ) : (
           isOwner ? (
-            <div className='ownerdiv' style={{width:"100%",height:"100vh"}}>
+            <div className='ownerdiv'>
+              <h1>Owner Controll Pannel</h1>
               <OwnerPart isVE={isVotingEnabled} toggleIsVE={toggleisve}/>
+              <p onClick={checkIsVoter}>
+                isVoter : {isVoter.toString()} , currentAccount : {currentAccount}
+              </p>
             </div>
           ): isVoter ? (
             <div> Voter </div>

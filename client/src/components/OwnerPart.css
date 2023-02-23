@@ -1,0 +1,15 @@
+.controllItem{
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    width: 50%;
+    border: 1px solid lightgray;
+    margin-bottom: 10px !important;
+    padding: 10px;
+}
+
+.muibtn{
+    width : 20vw;
+    margin-right: 10px;
+}
+

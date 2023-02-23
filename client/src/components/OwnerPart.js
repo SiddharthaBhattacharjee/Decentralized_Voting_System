@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { List , ListItem, ListItemAvatar, ListItemText } from '@mui/material';
 import {Button} from "@mui/material";
+import './OwnerPart.css';
 
 const OwnerPart = (props) => {
     let [IVE, setIVE] = useState(props.isVE);
@@ -13,16 +14,12 @@ const OwnerPart = (props) => {
     }
 
     return (
-        <List>
-        <ListItem>
+        <List className='controllItem'>
+        <ListItem className = 'muili'>
             <ListItemText primary="Is Voting Enabled : " />
+            <ListItemText  primary={IVE ? 'True' : 'False'} />
         </ListItem>
-        <ListItem>
-            <ListItemText primary={IVE ? 'True' : 'False'} />
-        </ListItem>
-        <ListItem>
-        <Button variant="contained" color="primary" onClick={toggleIsVELocal}>Toggle</Button>
-        </ListItem>
+        <Button className='muibtn' variant="contained" color="primary" onClick={toggleIsVELocal}>Toggle</Button>
         </List>
     );
     }
